@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Low-Level Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Exo+2:wght@300;400;600;700&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1218;
+    --bg3: #111820;
+    --accent: #00d4aa;
+    --accent2: #0097ff;
+    --text: #e8edf2;
+    --text2: #8a9ab0;
+    --text3: #4a5a6a;
+    --border: #1e2d3d;
+    --border2: #243547;
+    --mono: 'JetBrains Mono', monospace;
+    --head: 'Exo 2', sans-serif;
+    --body: 'IBM Plex Sans', sans-serif;
+    --radius: 6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(8,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo-text {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .nav-logo-text .slash { color: var(--accent); font-weight: 400; }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text2);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .lang-btn {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text2);
+    cursor: pointer;
+    padding: 4px 10px;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+  }
+
+  .lang-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 6rem 2rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-content { max-width: 700px; }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: var(--head);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-title .accent { color: var(--accent); }
+  .hero-title .dim { color: var(--text3); }
+
+  .hero-sub {
+    font-family: var(--body);
+    font-size: 1.05rem;
+    color: var(--text2);
+    max-width: 520px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .btn-primary:hover {
+    background: #00eebb;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  /* SECTION COMMON */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 80px;
+  }
+
+  .section-title {
+    font-family: var(--head);
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-desc {
+    color: var(--text2);
+    font-weight: 300;
+    font-size: 0.95rem;
+    margin-bottom: 3rem;
+    max-width: 500px;
+  }
+
+  /* PROJECTS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.75rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .project-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .project-card:hover::before { transform: scaleX(1); }
+
+  .project-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+  }
+
+  .project-status {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    float: right;
+    margin-top: 2px;
+  }
+
+  .status-active { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .status-wip { background: rgba(0,151,255,0.12); color: var(--accent2); }
+  .status-planned { background: rgba(74,90,106,0.3); color: var(--text3); }
+
+  .project-title {
+    font-family: var(--head);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    clear: both;
+  }
+
+  .project-desc {
+    font-size: 0.875rem;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+    font-weight: 300;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  /* SKILLS */
+  #skills { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .skill-group {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .skill-group-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--text2);
+  }
+
+  .skill-bar {
+    width: 60px;
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .skill-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) {
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .nav-links { display: none; }
+    .hero-stats { gap: 1.5rem; }
+  }
+
+  .about-text p {
+    color: var(--text2);
+    font-weight: 300;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-info { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; }
+
+  .info-row {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    align-items: baseline;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-key {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    min-width: 80px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .info-val { color: var(--text2); }
+
+  /* CONTACT */
+  #contact { background: var(--bg2); border-top: 1px solid var(--border); }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) {
+    .contact-grid { grid-template-columns: 1fr; }
+  }
+
+  .contact-links { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--text2);
+    padding: 1rem 1.25rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .contact-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  .contact-icon {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    min-width: 60px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+  }
+
+  /* CURSOR BLINK */
+  .cursor {
+    display: inline-block;
+    width: 3px;
+    height: 1em;
+    background: var(--accent);
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* TYPING EFFECT */
+  .typed-text { display: inline; }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .reveal.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo">
+    <svg width="34" height="34" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect x="16" y="8" width="68" height="68" rx="5" fill="#0d1218" stroke="#00d4aa" stroke-width="2"/>
+      <circle cx="50" cy="8" r="5" fill="#080c10"/>
+      <path d="M45 8 A5 5 0 0 0 55 8" fill="none" stroke="#00d4aa" stroke-width="2"/>
+      <line x1="16" y1="26" x2="2" y2="26" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="42" x2="2" y2="42" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="58" x2="2" y2="58" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+      <line x1="84" y1="26" x2="98" y2="26" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+      <line x1="84" y1="42" x2="98" y2="42" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+      <line x1="84" y1="58" x2="98" y2="58" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+      <text x="50" y="41" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="16" font-weight="700" fill="#00d4aa" letter-spacing="3">LLL</text>
+      <text x="50" y="57" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1a6e5a" letter-spacing="1">0x4400</text>
+      <circle cx="50" cy="68" r="2.5" fill="#00d4aa" opacity="0.4"/>
+    </svg>
+    <div class="nav-logo-text">LOW-LEVEL <span class="slash">// LAB</span></div>
+  </a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#projects" data-i18n="nav_projects">Projeler</a></li>
+      <li><a href="#skills" data-i18n="nav_skills">Yetenekler</a></li>
+      <li><a href="#about" data-i18n="nav_about">Hakkında</a></li>
+      <li><a href="#contact" data-i18n="nav_contact">İletişim</a></li>
+    </ul>
+    <button class="lang-btn" id="langToggle">EN</button>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-tag" data-i18n="hero_tag">Gömülü Sistemler & Drone Sistemleri Üzerine Çalışmalar</div>
+    <h1 class="hero-title">
+      <span class="dim">// </span><span data-i18n="hero_title1">Düşük Seviyede</span><br>
+      <span class="accent" data-i18n="hero_title2">Büyük Fikirler</span><span class="cursor"></span>
+    </h1>
+    <p class="hero-sub" data-i18n="hero_sub">
+      STM32 tabanlı uçuş kontrolcüleri, özel elektronik kartlar ve 3D baskı sistemleri — hepsini register seviyesinde, sıfırdan inşa ediyoruz.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary" data-i18n="hero_cta1">Projeleri Gör</a>
+      <a href="#contact" class="btn btn-ghost" data-i18n="hero_cta2">İletişime Geç</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">STM32</div>
+        <div class="stat-label" data-i18n="stat1">Mikrodenetleyici</div>
+      </div>
+      <div>
+        <div class="stat-num">C/C++</div>
+        <div class="stat-label" data-i18n="stat2">Register Seviyesi</div>
+      </div>
+      <div>
+        <div class="stat-num">FPV</div>
+        <div class="stat-label" data-i18n="stat3">Drone Sistemi</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="container">
+    <div class="section-label" data-i18n="projects_label">Projects</div>
+    <h2 class="section-title reveal" data-i18n="projects_title">Aktif Projeler</h2>
+    <p class="section-desc reveal" data-i18n="projects_desc">Her proje sıfırdan, donanım seviyesinde inşa ediliyor.</p>
+
+    <div class="projects-grid">
+
+      <div class="project-card reveal">
+        <div class="project-icon">✈</div>
+        <span class="project-status status-active" data-i18n="status_active">Aktif</span>
+        <h3 class="project-title" data-i18n="proj1_title">STM32 Uçuş Kontrolcüsü</h3>
+        <p class="project-desc" data-i18n="proj1_desc">
+          STM32F446 Nucleo ile sıfırdan uçuş kontrolcüsü geliştirme. IMU entegrasyonu, PID kontrolü, DShot600/PWM ESC haberleşmesi ve özel bootloader içeriyor.
+        </p>
+        <div class="project-tags">
+          <span class="tag">STM32F446</span>
+          <span class="tag">C/C++</span>
+          <span class="tag">DShot600</span>
+          <span class="tag">MPU-6050</span>
+          <span class="tag">PID</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-icon">🚁</div>
+        <span class="project-status status-wip" data-i18n="status_wip">Geliştiriliyor</span>
+        <h3 class="project-title" data-i18n="proj2_title">FPV Drone Sistemi</h3>
+        <p class="project-desc" data-i18n="proj2_desc">
+          Özel uçuş kontrolcüsü kartı, brushless ESC tasarımı ve FPV kamera entegrasyonu ile tam anlamıyla kendi tasarımı bir drone sistemi hedefleniyor.
+        </p>
+        <div class="project-tags">
+          <span class="tag">KiCad</span>
+          <span class="tag">BLHeli_S</span>
+          <span class="tag">FPV</span>
+          <span class="tag">ESC Design</span>
+          <span class="tag">RF</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-icon">🖨</div>
+        <span class="project-status status-wip" data-i18n="status_wip">Geliştiriliyor</span>
+        <h3 class="project-title" data-i18n="proj3_title">Özel 3D Yazıcı Kartı</h3>
+        <p class="project-desc" data-i18n="proj3_desc">
+          Mevcut 3D yazıcı kontrol kartlarını reverse-engineer ederek STM32 tabanlı özel bir kontrol kartı tasarımı. Stepper sürücü entegrasyonu ve özel firmware içerecek.
+        </p>
+        <div class="project-tags">
+          <span class="tag">STM32</span>
+          <span class="tag">Stepper</span>
+          <span class="tag">G-Code</span>
+          <span class="tag">PCB Design</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-icon">📡</div>
+        <span class="project-status status-planned" data-i18n="status_planned">Planlandı</span>
+        <h3 class="project-title" data-i18n="proj4_title">RF Analiz & Reverse Engineering</h3>
+        <p class="project-desc" data-i18n="proj4_desc">
+          Hurda elektroniklerden kurtarılan bilinmeyen IC'lerin ve RF sistemlerinin analizi. SDR tabanlı sinyal analizi ve protokol çözümleme çalışmaları.
+        </p>
+        <div class="project-tags">
+          <span class="tag">SDR</span>
+          <span class="tag">RF</span>
+          <span class="tag">Reverse Eng.</span>
+          <span class="tag">Logic Analyzer</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="container">
+    <div class="section-label" data-i18n="skills_label">Skills</div>
+    <h2 class="section-title reveal" data-i18n="skills_title">Teknik Yetkinlikler</h2>
+    <p class="section-desc reveal" data-i18n="skills_desc">Donanım ve yazılımın kesiştiği noktada çalışıyoruz.</p>
+
+    <div class="skills-grid reveal">
+
+      <div class="skill-group">
+        <div class="skill-group-title">Firmware</div>
+        <div class="skill-item"><span>C / C++</span><div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div></div>
+        <div class="skill-item"><span>Register Level</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div></div>
+        <div class="skill-item"><span>RTOS</span><div class="skill-bar"><div class="skill-fill" style="width:55%"></div></div></div>
+        <div class="skill-item"><span>DMA / IRQ</span><div class="skill-bar"><div class="skill-fill" style="width:80%"></div></div></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Mikrodenetleyici</div>
+        <div class="skill-item"><span>STM32F4xx</span><div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div></div>
+        <div class="skill-item"><span>Cortex-M4 / FPU</span><div class="skill-bar"><div class="skill-fill" style="width:75%"></div></div></div>
+        <div class="skill-item"><span>I2C / SPI / UART</span><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div></div>
+        <div class="skill-item"><span>Timer / PWM</span><div class="skill-bar"><div class="skill-fill" style="width:82%"></div></div></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Donanım</div>
+        <div class="skill-item"><span>PCB Tasarım</span><div class="skill-bar"><div class="skill-fill" style="width:65%"></div></div></div>
+        <div class="skill-item"><span>KiCad / Eagle</span><div class="skill-bar"><div class="skill-fill" style="width:60%"></div></div></div>
+        <div class="skill-item"><span>Osiloskop / LA</span><div class="skill-bar"><div class="skill-fill" style="width:78%"></div></div></div>
+        <div class="skill-item"><span>3D Modelleme</span><div class="skill-bar"><div class="skill-fill" style="width:70%"></div></div></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Araçlar</div>
+        <div class="skill-item"><span>STM32CubeIDE</span><div class="skill-bar"><div class="skill-fill" style="width:80%"></div></div></div>
+        <div class="skill-item"><span>GDB / SWD Debug</span><div class="skill-bar"><div class="skill-fill" style="width:72%"></div></div></div>
+        <div class="skill-item"><span>Python</span><div class="skill-bar"><div class="skill-fill" style="width:65%"></div></div></div>
+        <div class="skill-item"><span>Git</span><div class="skill-bar"><div class="skill-fill" style="width:75%"></div></div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="section-label" data-i18n="about_label">About</div>
+    <h2 class="section-title reveal" data-i18n="about_title">Hakkımda</h2>
+
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p data-i18n="about_p1">Gömülü sistemler ve drone sistemleri üzerine çalışmalar alanında register seviyesinde çalışmalar yürütüyorum. Amacım her sistemi en alt katmandan anlayarak, hazır kütüphanelere bağımlı kalmadan inşa etmek.</p>
+        <p data-i18n="about_p2">Hurda elektroniklerden kurtarılan parçaları yeniden hayata kazandırmak, bilinmeyen IC'leri analiz etmek ve RF sistemlerini çözümlemek en sevdiğim hobiler arasında.</p>
+        <p data-i18n="about_p3">Uzun vadeli hedefim: tamamen kendi tasarladığım donanım ve yazılımla uçan bir drone sistemi inşa etmek.</p>
+      </div>
+      <div class="about-info reveal">
+        <div class="info-row">
+          <span class="info-key" data-i18n="info_loc">Konum</span>
+          <span class="info-val">İstanbul, Türkiye</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key" data-i18n="info_focus">Odak</span>
+          <span class="info-val" data-i18n="info_focus_val">Gömülü Sistemler, Drone Sistemleri Üzerine Çalışmalar</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key" data-i18n="info_hw">Donanım</span>
+          <span class="info-val">STM32F446, DJI 2212, MAMBA ESC</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key" data-i18n="info_lang">Dil</span>
+          <span class="info-val">C, C++, Python</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key" data-i18n="info_open">Açık</span>
+          <span class="info-val" data-i18n="info_open_val">Freelance, Proje İşbirlikleri</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="section-label" data-i18n="contact_label">Contact</div>
+    <h2 class="section-title reveal" data-i18n="contact_title">İletişime Geç</h2>
+    <p class="section-desc reveal" data-i18n="contact_desc">Proje işbirliği, freelance çalışma veya sadece sohbet için ulaşabilirsin.</p>
+
+    <div class="contact-grid">
+      <div class="contact-links reveal">
+        <a href="https://github.com/" class="contact-link" target="_blank">
+          <span class="contact-icon">GitHub</span>
+          <span>github.com/username</span>
+        </a>
+        <a href="https://linkedin.com/" class="contact-link" target="_blank">
+          <span class="contact-icon">LinkedIn</span>
+          <span>linkedin.com/in/username</span>
+        </a>
+        <a href="mailto:mail@example.com" class="contact-link">
+          <span class="contact-icon">E-Posta</span>
+          <span>mail@example.com</span>
+        </a>
+      </div>
+      <div class="reveal" style="padding-top: 0.5rem;">
+        <p style="color: var(--text2); font-size: 0.875rem; font-weight: 300; line-height: 1.9;" data-i18n="contact_note">
+          Türkiye'deki otomasyon ve IoT firmalarıyla çalışmaya açığım. Embedded systems danışmanlığı, PCB tasarımı veya özel firmware geliştirme konularında iş birliği yapabiliriz.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span data-i18n="footer">Low-Level Lab &mdash; Register seviyesinde, sıfırdan inşa.</span>
+</footer>
+
+<script>
+const i18n = {
+  tr: {
+    nav_projects: "Projeler",
+    nav_skills: "Yetenekler",
+    nav_about: "Hakkında",
+    nav_contact: "İletişim",
+    hero_tag: "Gömülü Sistemler & Drone Sistemleri Üzerine Çalışmalar",
+    hero_title1: "Düşük Seviyede",
+    hero_title2: "Büyük Fikirler",
+    hero_sub: "STM32 tabanlı uçuş kontrolcüleri, özel elektronik kartlar ve 3D baskı sistemleri — hepsini register seviyesinde, sıfırdan inşa ediyoruz.",
+    hero_cta1: "Projeleri Gör",
+    hero_cta2: "İletişime Geç",
+    stat1: "Mikrodenetleyici",
+    stat2: "Register Seviyesi",
+    stat3: "Drone Sistemi",
+    projects_label: "Projeler",
+    projects_title: "Aktif Projeler",
+    projects_desc: "Her proje sıfırdan, donanım seviyesinde inşa ediliyor.",
+    status_active: "Aktif",
+    status_wip: "Geliştiriliyor",
+    status_planned: "Planlandı",
+    proj1_title: "STM32 Uçuş Kontrolcüsü",
+    proj1_desc: "STM32F446 Nucleo ile sıfırdan uçuş kontrolcüsü geliştirme. IMU entegrasyonu, PID kontrolü, DShot600/PWM ESC haberleşmesi ve özel bootloader içeriyor.",
+    proj2_title: "FPV Drone Sistemi",
+    proj2_desc: "Özel uçuş kontrolcüsü kartı, brushless ESC tasarımı ve FPV kamera entegrasyonu ile tam anlamıyla kendi tasarımı bir drone sistemi hedefleniyor.",
+    proj3_title: "Özel 3D Yazıcı Kartı",
+    proj3_desc: "Mevcut 3D yazıcı kontrol kartlarını reverse-engineer ederek STM32 tabanlı özel bir kontrol kartı tasarımı. Stepper sürücü entegrasyonu ve özel firmware içerecek.",
+    proj4_title: "RF Analiz & Reverse Engineering",
+    proj4_desc: "Hurda elektroniklerden kurtarılan bilinmeyen IC'lerin ve RF sistemlerinin analizi. SDR tabanlı sinyal analizi ve protokol çözümleme çalışmaları.",
+    skills_label: "Yetenekler",
+    skills_title: "Teknik Yetkinlikler",
+    skills_desc: "Donanım ve yazılımın kesiştiği noktada çalışıyoruz.",
+    about_label: "Hakkında",
+    about_title: "Hakkımda",
+    about_p1: "Gömülü sistemler ve drone sistemleri üzerine register seviyesinde çalışmalar yürütüyorum. Amacım her sistemi en alt katmandan anlayarak, hazır kütüphanelere bağımlı kalmadan inşa etmek.",
+    about_p2: "Hurda elektroniklerden kurtarılan parçaları yeniden hayata kazandırmak, bilinmeyen IC'leri analiz etmek ve RF sistemlerini çözümlemek en sevdiğim hobiler arasında.",
+    about_p3: "Uzun vadeli hedefim: tamamen kendi tasarladığım donanım ve yazılımla uçan bir drone sistemi inşa etmek.",
+    info_loc: "Konum",
+    info_focus: "Odak",
+    info_focus_val: "Gömülü Sistemler, Drone Sistemleri Üzerine Çalışmalar",
+    info_hw: "Donanım",
+    info_lang: "Dil",
+    info_open: "Açık",
+    info_open_val: "Freelance, Proje İşbirlikleri",
+    contact_label: "İletişim",
+    contact_title: "İletişime Geç",
+    contact_desc: "Proje işbirliği, freelance çalışma veya sadece sohbet için ulaşabilirsin.",
+    contact_note: "Türkiye'deki otomasyon ve IoT firmalarıyla çalışmaya açığım. Gömülü sistem danışmanlığı, PCB tasarımı veya özel firmware geliştirme konularında iş birliği yapabiliriz.",
+    footer: "Low-Level Lab — Register seviyesinde, sıfırdan inşa."
+  },
+  en: {
+    nav_projects: "Projects",
+    nav_skills: "Skills",
+    nav_about: "About",
+    nav_contact: "Contact",
+    hero_tag: "Embedded Systems & Drone Systems Research",
+    hero_title1: "Low Level,",
+    hero_title2: "Big Ideas",
+    hero_sub: "STM32-based flight controllers, custom PCBs and 3D printing systems — all built from scratch, at the register level.",
+    hero_cta1: "View Projects",
+    hero_cta2: "Get in Touch",
+    stat1: "Microcontroller",
+    stat2: "Register Level",
+    stat3: "Drone System",
+    projects_label: "Projects",
+    projects_title: "Active Projects",
+    projects_desc: "Every project is built from the ground up, at the hardware level.",
+    status_active: "Active",
+    status_wip: "In Progress",
+    status_planned: "Planned",
+    proj1_title: "STM32 Flight Controller",
+    proj1_desc: "Building a flight controller from scratch using STM32F446 Nucleo. Includes IMU integration, PID control, DShot600/PWM ESC communication and custom bootloader.",
+    proj2_title: "FPV Drone System",
+    proj2_desc: "Targeting a fully self-designed drone system with custom flight controller PCB, brushless ESC design and FPV camera integration.",
+    proj3_title: "Custom 3D Printer Board",
+    proj3_desc: "Reverse-engineering existing 3D printer control boards to design a custom STM32-based control board with stepper driver integration and custom firmware.",
+    proj4_title: "RF Analysis & Reverse Engineering",
+    proj4_desc: "Analysis of salvaged electronics and unknown ICs. SDR-based signal analysis and protocol decoding from recovered hardware.",
+    skills_label: "Skills",
+    skills_title: "Technical Skills",
+    skills_desc: "Working at the intersection of hardware and software.",
+    about_label: "About",
+    about_title: "About Me",
+    about_p1: "I work at the register level in embedded systems and drone systems research. My goal is to understand every system from its lowest layer and build without relying on high-level libraries.",
+    about_p2: "Salvaging parts from discarded electronics, analyzing unknown ICs and decoding RF systems are among my favorite activities.",
+    about_p3: "Long-term goal: build a drone that flies on entirely self-designed hardware and software.",
+    info_loc: "Location",
+    info_focus: "Focus",
+    info_focus_val: "Embedded Systems, Drone Systems Research",
+    info_hw: "Hardware",
+    info_lang: "Languages",
+    info_open: "Open to",
+    info_open_val: "Freelance, Project Collaborations",
+    contact_label: "Contact",
+    contact_title: "Get in Touch",
+    contact_desc: "Reach out for project collaboration, freelance work, or just a chat.",
+    contact_note: "Open to working with automation and IoT companies. Available for embedded systems consulting, PCB design and custom firmware development.",
+    footer: "Low-Level Lab — Built from scratch, at the register level."
+  }
+};
+
+let currentLang = 'tr';
+
+function applyLang(lang) {
+  currentLang = lang;
+  const dict = i18n[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.innerHTML = dict[key];
+  });
+  document.getElementById('langToggle').textContent = lang === 'tr' ? 'EN' : 'TR';
+  document.documentElement.lang = lang;
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  applyLang(currentLang === 'tr' ? 'en' : 'tr');
+});
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
